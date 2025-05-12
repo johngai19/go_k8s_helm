@@ -1,0 +1,8 @@
+apiVersion: v2
+name: dv
+description: Chart for Nginx in the dv environment
+version: 0.1.0
+dependencies:
+  - name: nginx
+    version: 1.0.0
+    repository: "https://charts.bitnami.com/bitnami"

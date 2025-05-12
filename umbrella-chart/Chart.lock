@@ -1,0 +1,9 @@
+dependencies:
+- name: dv
+  repository: file://./charts/dv
+  version: 0.1.0
+- name: prd
+  repository: file://./charts/prd
+  version: 0.1.0
+digest: sha256:bcede1f3a8b881fd56aa9ec57a70d38e922dae125180ff8d11f4500628f338b2
+generated: "2025-05-12T17:49:42.034968009+08:00"

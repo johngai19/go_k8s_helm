@@ -1,0 +1,7 @@
+global:
+    namespace: default
+    image:
+        repository: nginx
+        tag: "1.19"
+    service:
+        port: 80

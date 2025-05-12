@@ -1,0 +1,3 @@
+replicaCount: 2
+name: nginx-prd
+fullname: nginx-prd

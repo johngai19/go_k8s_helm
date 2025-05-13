@@ -297,6 +297,10 @@ To remove all Kubernetes resources deployed by this chart:
 helm uninstall nginx-umbrella-release -n default
 ```
 
+## Uninstalling the Chart and Cleaning Up
+
+To remove the deployed Helm release and any manually created resources like the required Secret, please refer to the [Cleanup Guide](./docs/cleanup-guide.md).
+
 ## Other Useful Helm Commands
 
 -   **Dry Run Installation (template rendering):**

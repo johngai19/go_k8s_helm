@@ -93,7 +93,7 @@ echo ""
 
 **To decode all fields (requires `jq`):**
 
-If you have `jq` installed, you can decode all data fields at once:
+If you have `jq` installed (Install with `sudo apt-get install jq` on Ubuntu), you can decode all data fields at once:
 
 ```bash
 kubectl get secret <secret-name> -n <namespace> -o jsonpath='{.data}' | jq 'map_values(@base64d)'

@@ -14,6 +14,7 @@ This approach helps in:
 
 - A running Kubernetes cluster.
 - [Helm v3](https://helm.sh/docs/intro/install/) installed on your local machine.
+- **Required Kubernetes Secret**: This chart, specifically the `prd` subchart, requires a Kubernetes Secret to be present in the cluster before installation. The default expected Secret name is `my-app-credentials` (configurable in `values.yaml` via `global.requiredSecretName`). You must create this Secret manually. See the "Create the Required Secret" section for methods to create it. If this Secret is not present and the check in `charts/prd/templates/service.yaml` is active, the installation will fail.
 
 ### Installing Helm (Example)
 
@@ -36,6 +37,71 @@ If you don't have Helm installed, you can use the script installation method (co
     helm version
     ```
     You should see output similar to: `version.BuildInfo{Version:"v3.13.1", GitTreeState:"clean", GoVersion:"go1.20.8"}` (your version may vary).
+
+### 2. Create the Required Secret (Important!)
+
+Before installing the chart, you **must** create the required Kubernetes Secret in your cluster. The `prd` subchart's `service.yaml` template (`charts/prd/templates/service.yaml`) contains logic to check for this Secret (default name: `my-app-credentials` in the `default` namespace, as defined in `global.requiredSecretName` and `global.namespace` in `umbrella-chart/values.yaml`).
+
+You can create this Secret in one of the following ways:
+
+**Method 1: Using `kubectl create secret generic`**
+
+Use the following command to create an example Secret. Adjust the Secret name, data, and namespace (`-n`) as needed:
+```bash
+kubectl create secret generic my-app-credentials \
+  --from-literal=username='admin' \
+  --from-literal=password='supersecret123' \
+  --namespace default
+```
+
+**Method 2: Using a YAML manifest file**
+
+A sample manifest file `required-secret.yaml` is provided in the `umbrella-chart` directory. You can customize it and then apply it:
+```yaml
+# umbrella-chart/required-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-app-credentials
+  namespace: default
+type: Opaque
+data:
+  username: YWRtaW4= # base64 encoded "admin"
+  password: c3VwZXJzZWNyZXQxMjM= # base64 encoded "supersecret123"
+```
+Deploy it using:
+```bash
+kubectl apply -f ./umbrella-chart/required-secret.yaml
+```
+
+**Note on the Secret Check in `prd` subchart:**
+
+The check for this Secret is implemented at the beginning of the `umbrella-chart/charts/prd/templates/service.yaml` file:
+```helm
+{{- $secretName := .Values.global.requiredSecretName -}}
+{{- $namespace := .Values.global.namespace -}}
+{{- $secret := lookup "v1" "Secret" $namespace $secretName }}
+{{- if not $secret -}}
+  {{- required (printf "The required Secret '%s' in namespace '%s' was not found. Please create it or comment out this check." $secretName $namespace) "" -}}
+{{- end -}}
+```
+
+If you do not want this Secret dependency for the `prd` environment, or if you manage the Secret through other means and want to bypass this explicit Helm check, you can comment out this block in `umbrella-chart/charts/prd/templates/service.yaml`. To comment it out, modify the file as follows:
+
+```helm
+{{- /*
+{{- $secretName := .Values.global.requiredSecretName -}}
+{{- $namespace := .Values.global.namespace -}}
+{{- $secret := lookup "v1" "Secret" $namespace $secretName }}
+{{- if not $secret -}}
+  {{- required (printf "The required Secret '%s' in namespace '%s' was not found. Please create it or comment out this check." $secretName $namespace) "" -}}
+{{- end -}}
+*/}}
+
+apiVersion: v1
+kind: Service
+```
+Remember to rebuild dependencies if you modify subchart templates directly, although for template changes `helm install/upgrade` usually picks them up.
 
 ## Chart Structure
 
@@ -118,9 +184,9 @@ Saving 2 charts
 Deleting outdated charts
 ```
 
-### 2. Installation
+### 3. Installation
 
-Install the umbrella chart. This will deploy the resources defined in both the `dv` and `prd` subcharts into the Kubernetes cluster.
+Once the dependencies are built and the required Secret is created, install the umbrella chart. This will deploy the resources defined in both the `dv` and `prd` subcharts into the Kubernetes cluster.
 
 ```bash
 helm install nginx-umbrella-release ./umbrella-chart --namespace default
@@ -149,7 +215,29 @@ helm status nginx-umbrella-release -n default
 ```
 This command provides detailed information about the deployed resources.
 
-**c. Check Kubernetes Deployments:**
+**c. Check the Required Secret:**
+You can verify that the Secret exists and inspect its contents. For detailed instructions on how to check for the Secret and view its data, please refer to the [How to Check for a Kubernetes Secret](./docs/check-secret-existence.md) guide.
+
+A quick check can be performed as follows:
+To check if the Secret `my-app-credentials` exists in the `default` namespace:
+```bash
+kubectl get secret my-app-credentials -n default
+```
+To view the decoded data within the Secret (requires `jq` to be installed for easy viewing, or decode manually):
+```bash
+# Using jq
+kubectl get secret my-app-credentials -n default -o jsonpath='{.data}' | jq 'map_values(@base64d)'
+
+# Or, to get specific fields decoded:
+echo "Username:"
+kubectl get secret my-app-credentials -n default -o jsonpath='{.data.username}' | base64 --decode
+echo ""
+echo "Password:"
+kubectl get secret my-app-credentials -n default -o jsonpath='{.data.password}' | base64 --decode
+echo ""
+```
+
+**d. Check Kubernetes Deployments:**
 Deployments from both `dv` and `prd` subcharts should be created.
 ```bash
 kubectl get deployments -n default
@@ -161,7 +249,7 @@ nginx-dv-deployment    1/1     1            1           2m
 nginx-prd-deployment   3/3     3            3           2m
 ```
 
-**d. Check Kubernetes Pods:**
+**e. Check Kubernetes Pods:**
 ```bash
 kubectl get pods -n default -l "app=nginx"
 ```
@@ -175,7 +263,7 @@ nginx-prd-deployment-yyyyyyyyyy-aaaaa   1/1     Running   0          2m
 ```
 *(Pod name suffixes `xxxxxxxxxx-xxxxx` will be auto-generated.)*
 
-**e. Check Kubernetes Services:**
+**f. Check Kubernetes Services:**
 Services defined in subcharts should be created.
 ```bash
 kubectl get services -n default

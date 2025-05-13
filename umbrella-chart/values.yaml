@@ -5,3 +5,7 @@ global:
         tag: "1.19"
     service:
         port: 80
+        # Name of the Kubernetes Secret that must exist in the cluster
+    # before installing this chart. The chart templates will attempt to look up this secret.
+    # If not found, and the templates are configured to require it, installation will fail.
+    requiredSecretName: "my-app-credentials"

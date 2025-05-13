@@ -15,7 +15,7 @@ This document outlines the planned features and enhancements for the Go Kubernet
 2.  **Helm Chart Pre-flight Checks & Value Templating:**
     *   **Description:** Implement a robust system for checking Helm charts before installation and for managing value templating. This aims to catch errors early and provide flexible value injection.
     *   **Tasks:**
-        *   Develop a mechanism to replace placeholders (e.g., `{{ .Values.some.path }}`, `%%PLACEHOLDER%%`, custom formats) in `values.yaml` and other YAML files within a chart.
+        *   Develop a mechanism to replace placeholders (e.g., `@{variable}`(this is default format),`{{ .Values.some.path }}`, `%%PLACEHOLDER%%`, custom formats) in `values.yaml` and other YAML files within a chart.
         *   Support sourcing values from:
             *   Default `values.yaml`.
             *   Values files from dependent charts.
@@ -43,7 +43,7 @@ This document outlines the planned features and enhancements for the Go Kubernet
         *   For each chart, parse `Chart.yaml` and return its details (name, version, description, appVersion, etc.).
         *   Extract a list of all variables/placeholders that need to be filled for a chart:
             *   Prioritize a dedicated JSON file (e.g., `variables.json` or `schema.json`) within the chart folder that explicitly lists variables, their types, descriptions, and default values.
-            *   If the JSON file doesn't exist, implement a fallback to walk through all `.yaml` files in the chart (templates, values files) to find placeholders (e.g., `{{ .Values.* }}`, `%%...%%`) and generate a preliminary list.
+            *   If the JSON file doesn't exist, implement a fallback to walk through all `.yaml` files in the chart (templates, values files) to find placeholders (e.g., `@{variable}`(this is default format),`{{ .Values.some.path }}`, `%%PLACEHOLDER%%`, custom formats) and generate a preliminary list.
         *   API/function to add new charts to this managed folder, including support for unzipping `.zip` or `.tgz` chart archives.
         *   **Design Consideration:** This package would be crucial for UI-driven chart configuration.
 

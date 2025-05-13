@@ -4,7 +4,7 @@
 
 This project is a Go application designed to interact with Kubernetes clusters and manage Helm chart deployments. It serves as an illustrative example of how to use the official Go client libraries for Kubernetes (`client-go`) and the Helm SDK. The project includes command-line utilities (`k8schecker`, `helmctl`) for direct interaction and testing, as well as internal utility packages (`k8sutils`, `helmutils`) that can be leveraged by other Go applications or within this project for more complex operations.
 
-A key component used for initial setup verification and ongoing testing is the `umbrella-chart` located in the `umbrella-chart/` subdirectory.
+The `umbrella-chart/` subdirectory currently serves as an example chart for initial setup verification and testing. In a production-like setup driven by the planned features, user-managed charts would reside within a dedicated data directory.
 
 ## Prerequisites
 
@@ -14,6 +14,7 @@ Before you begin, ensure you have the following:
 2.  **Kubernetes Cluster**: A running Kubernetes cluster (e.g., Minikube, Kind, Docker Desktop, or a cloud-managed cluster).
 3.  **Helm CLI**: Helm v3 installed and configured to interact with your cluster.
 4.  **kubectl**: The Kubernetes command-line tool, configured for your cluster.
+5.  **Docker**: (Optional, for building and running as a container) Docker installed.
 
 ## Getting Started: Environment Verification
 
@@ -34,11 +35,14 @@ The `umbrella-chart` can also be utilized by the `helmctl` utility for testing H
 
 ```
 .
+├── bin/                  # Compiled binary executables
+│   ├── k8schecker
+│   └── helmctl
 ├── cmd/
 │   ├── k8schecker/
-│   │   └── main.go     # CLI utility for K8s checks
-│   └── helmctl/        # Corrected from htlmctl
-│       └── main.go     # CLI utility for Helm operations
+│   │   └── main.go     # Source for k8schecker CLI
+│   └── helmctl/
+│       └── main.go     # Source for helmctl CLI
 ├── internal/
 │   ├── k8sutils/
 │   │   ├── auth.go     # K8s authentication and permission utilities
@@ -46,26 +50,38 @@ The `umbrella-chart` can also be utilized by the `helmctl` utility for testing H
 │   └── helmutils/
 │       ├── client.go   # Helm client operations
 │       └── client_test.go
-├── umbrella-chart/     # Helm umbrella chart for environment testing
+├── umbrella-chart/     # Example Helm chart for environment testing
 │   ├── Chart.yaml
-│   ├── values.yaml
-│   ├── charts/
-│   │   ├── dv/
-│   │   └── prd/
-│   ├── docs/
-│   │   ├── check-secret-existence.md
-│   │   └── cleanup-guide.md
-│   ├── required-secret.yaml
-│   └── README.md       # Detailed guide for deploying the umbrella chart
-├── go.mod              # Go module file
+│   └── ... (other chart files)
+├── data/                 # Application data root (created by the app if not present)
+│   ├── charts/           # For storing managed Helm chart products
+│   ├── backups/          # For Helm release backups
+│   ├── config/           # For application configuration files
+│   ├── database/         # For SQLite database file (if used)
+│   └── public/           # For compiled frontend static assets (future)
+├── Dockerfile            # For building the application Docker image (future)
+├── deployment.yaml       # Example Kubernetes deployment manifest (future)
+├── go.mod                # Go module file
 ├── go.sum
-├── TODO.md             # List of planned features and enhancements
-└── README.md           # This file
+├── TODO.md               # List of planned features and enhancements
+└── README.md             # This file
 ```
+
+## Data Management
+
+The application will use a primary data directory, typically `./data/` relative to its execution path (or a path configured via environment variables when containerized). This directory will house various subdirectories for persistent and operational data:
+
+-   **`data/charts/`**: Stores Helm chart "products" managed by the application.
+-   **`data/backups/`**: Contains backups of Helm releases before upgrades or changes.
+-   **`data/config/`**: Holds application-specific configuration files.
+-   **`data/database/`**: If using the default SQLite database, the database file will be stored here.
+-   **`data/public/`**: (Future) Will store compiled static assets for the frontend UI.
+
+The application should be designed to create these subdirectories if they do not exist at startup. When deploying in Kubernetes, this entire `./data` directory should be mapped to a PersistentVolume.
 
 ## Command-Line Utilities
 
-These utilities serve both as functional tools and as test harnesses for the underlying `internal` packages.
+These utilities serve both as functional tools and as test harnesses for the underlying `internal` packages. Binaries are built into the `./bin/` directory.
 
 ### `k8schecker`
 
@@ -83,17 +99,17 @@ The `k8schecker` is a command-line utility to interact with Kubernetes clusters 
 **Build:**
 Navigate to the project root directory:
 ```bash
-go build -o k8schecker ./cmd/k8schecker
+go build -o ./bin/k8schecker ./cmd/k8schecker
 ```
 
 **Usage & Examples:**
-(Refer to the comment block in `cmd/k8schecker/main.go` for detailed examples or run `./k8schecker --help`)
+(Refer to the comment block in `cmd/k8schecker/main.go` for detailed examples or run `./bin/k8schecker --help`)
 
 ### `helmctl`
 
 The `helmctl` is a command-line utility to manage Helm chart deployments and interact with Helm functionalities.
 
-**Location:** `cmd/helmctl/main.go` (Corrected from htlmctl)
+**Location:** `cmd/helmctl/main.go`
 
 **Purpose:**
 - List Helm releases in specified or all namespaces.
@@ -109,11 +125,11 @@ The `helmctl` is a command-line utility to manage Helm chart deployments and int
 **Build:**
 Navigate to the project root directory:
 ```bash
-go build -o helmctl ./cmd/helmctl
+go build -o ./bin/helmctl ./cmd/helmctl
 ```
 
 **Usage & Examples:**
-(Refer to the comment block in `cmd/helmctl/main.go` for detailed examples or run `./helmctl --help` and `./helmctl <command> --help`)
+(Refer to the comment block in `cmd/helmctl/main.go` for detailed examples or run `./bin/helmctl --help` and `./bin/helmctl <command> --help`)
 
 ## Internal Go Modules
 
@@ -161,12 +177,37 @@ The `umbrella-chart` located in the `umbrella-chart/` directory is not only for 
 
 For example, after deploying the `umbrella-chart` as `my-umbrella-release` in the `dev` namespace:
 ```bash
-# Ensure helmctl is built and in your PATH or use ./helmctl
-helmctl --helm-namespace=dev list --filter my-umbrella-release
-helmctl --helm-namespace=dev details my-umbrella-release
+# Ensure helmctl is built (e.g., in ./bin/)
+./bin/helmctl --helm-namespace=dev list --filter my-umbrella-release
+./bin/helmctl --helm-namespace=dev details my-umbrella-release
 # (Adjust paths if helmctl is run from a different directory than the project root)
-helmctl --helm-namespace=dev upgrade my-umbrella-release --chart=./umbrella-chart --set="prd.enabled=false"
-helmctl --helm-namespace=dev uninstall my-umbrella-release
+# Note: For local chart paths, ensure the path is correct relative to where helmctl is run.
+# The umbrella-chart is at the project root. If running helmctl from project root:
+./bin/helmctl --helm-namespace=dev upgrade my-umbrella-release --chart=./umbrella-chart --set="prd.enabled=false"
+./bin/helmctl --helm-namespace=dev uninstall my-umbrella-release
+```
+
+## Dockerization (Future)
+
+A `Dockerfile` will be provided to build the Go application (primarily the backend server component) into a container image. This will facilitate deployment in various containerized environments, including Kubernetes.
+
+**Build (Example):**
+```bash
+docker build -t your-repo/go-k8s-helm-app .
+```
+
+## Kubernetes Deployment (Future)
+
+An example `deployment.yaml` (or a Helm chart for the application itself) will be provided to deploy the application to a Kubernetes cluster.
+
+**Key considerations for deployment:**
+-   **Persistent Data:** The application's data directory (e.g., `/app/data` inside the container, mapped from the host's `./data` or a PV) must be mounted using a PersistentVolumeClaim to ensure data persistence across pod restarts and redeployments.
+-   **Configuration:** Database connection strings, API keys, and other sensitive or environment-specific configurations should be managed via Kubernetes Secrets and/or ConfigMaps, and exposed to the application as environment variables or mounted files.
+-   **Networking:** A Kubernetes Service will expose the application (e.g., the Gin API). An Ingress resource might be used for external access.
+
+**Deployment (Example):**
+```bash
+kubectl apply -f deployment.yaml
 ```
 
 ## Future Enhancements / To-Do List
@@ -178,3 +219,11 @@ For a detailed breakdown of planned features and ongoing tasks, please see the:
 ➡️ **[Project To-Do List](./TODO.md)**
 
 We aim to adopt suitable design patterns (e.g., Repository, Strategy, modular design) to ensure the packages remain independent, configurable, and maintainable as the project grows.
+
+## Contributing
+
+*(Contribution guidelines will be added here.)*
+
+## License
+
+*(License information will be added here.)*

@@ -73,6 +73,11 @@ Deploy it using:
 ```bash
 kubectl apply -f ./umbrella-chart/required-secret.yaml
 ```
+If you want to delette the secret, use:
+```bash
+kubectl delete -f ./umbrella-chart/required-secret.yaml
+```
+
 
 **Note on the Secret Check in `prd` subchart:**
 

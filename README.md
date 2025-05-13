@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is a Go application designed to interact with Kubernetes clusters and manage Helm chart deployments. It serves as an illustrative example of how to use the official Go client libraries for Kubernetes (`client-go`) and Helm SDK.
+This project is a Go application designed to interact with Kubernetes clusters and manage Helm chart deployments. It serves as an illustrative example of how to use the official Go client libraries for Kubernetes (`client-go`) and the Helm SDK. The project includes command-line utilities (`k8schecker`, `helmctl`) for direct interaction and testing, as well as internal utility packages (`k8sutils`, `helmutils`) that can be leveraged by other Go applications or within this project for more complex operations.
 
 A key component used for initial setup verification and ongoing testing is the `umbrella-chart` located in the `umbrella-chart/` subdirectory.
 
@@ -17,7 +17,7 @@ Before you begin, ensure you have the following:
 
 ## Getting Started: Environment Verification
 
-To ensure your Kubernetes and Helm environment is correctly set up and capable of deploying applications, it is crucial to first test a basic deployment. We use the `my-umbrella-chart` for this purpose.
+To ensure your Kubernetes and Helm environment is correctly set up and capable of deploying applications, it is crucial to first test a basic deployment. We use the `umbrella-chart` for this purpose.
 
 **Please follow the guide in the `umbrella-chart`'s README to deploy it to your cluster:**
 
@@ -28,20 +28,25 @@ Successfully deploying this chart will confirm that:
 - Helm can communicate with your cluster.
 - Basic Kubernetes resources (Deployments, Services) can be created.
 
-The `umbrella-chart` will also be utilized by this Go application for automated testing purposes.
+The `umbrella-chart` can also be utilized by the `helmctl` utility for testing Helm operations.
 
-## Project Structure (Simplified)
+## Project Structure
 
 ```
 .
 ├── cmd/
-│   └── k8schecker/
-│       └── main.go     # CLI utility for K8s checks
+│   ├── k8schecker/
+│   │   └── main.go     # CLI utility for K8s checks
+│   └── helmctl/        # Corrected from htlmctl
+│       └── main.go     # CLI utility for Helm operations
 ├── internal/
-│   └── k8sutils/
-│       ├── auth.go     # K8s authentication and permission utilities
-│       └── auth_test.go
-├── umbrella-chart/     # Helm umbrella chart for environment testing and Go app tests
+│   ├── k8sutils/
+│   │   ├── auth.go     # K8s authentication and permission utilities
+│   │   └── auth_test.go
+│   └── helmutils/
+│       ├── client.go   # Helm client operations
+│       └── client_test.go
+├── umbrella-chart/     # Helm umbrella chart for environment testing
 │   ├── Chart.yaml
 │   ├── values.yaml
 │   ├── charts/
@@ -54,14 +59,17 @@ The `umbrella-chart` will also be utilized by this Go application for automated 
 │   └── README.md       # Detailed guide for deploying the umbrella chart
 ├── go.mod              # Go module file
 ├── go.sum
+├── TODO.md             # List of planned features and enhancements
 └── README.md           # This file
 ```
 
 ## Command-Line Utilities
 
+These utilities serve both as functional tools and as test harnesses for the underlying `internal` packages.
+
 ### `k8schecker`
 
-The `k8schecker` is a command-line utility built with this project to interact with Kubernetes clusters and verify various states and permissions.
+The `k8schecker` is a command-line utility to interact with Kubernetes clusters and verify various states and permissions.
 
 **Location:** `cmd/k8schecker/main.go`
 
@@ -70,6 +78,7 @@ The `k8schecker` is a command-line utility built with this project to interact w
 - Get the current Kubernetes namespace.
 - Check permissions for specific resources within a namespace.
 - Check permissions for cluster-level resources.
+- Leverages the `internal/k8sutils` package.
 
 **Build:**
 Navigate to the project root directory:
@@ -78,55 +87,37 @@ go build -o k8schecker ./cmd/k8schecker
 ```
 
 **Usage & Examples:**
-The utility uses flags to specify the action to perform.
+(Refer to the comment block in `cmd/k8schecker/main.go` for detailed examples or run `./k8schecker --help`)
 
-1.  **Check if running in-cluster:**
-    ```bash
-    ./k8schecker --check-in-cluster
-    ```
+### `helmctl`
 
-2.  **Get current namespace:**
-    (Tries in-cluster, then kubeconfig)
-    ```bash
-    ./k8schecker --get-current-namespace
-    ```
-    With a specific kubeconfig:
-    ```bash
-    ./k8schecker --kubeconfig=/path/to/your/kubeconfig --get-current-namespace
-    ```
+The `helmctl` is a command-line utility to manage Helm chart deployments and interact with Helm functionalities.
 
-3.  **Check namespace permissions:**
-    (e.g., for 'pods' in 'default' namespace for 'get' and 'list' verbs)
-    ```bash
-    ./k8schecker --check-ns-perms \
-                 --perm-namespace=default \
-                 --perm-resource=pods \
-                 --perm-verbs=get,list
-    ```
-    (For 'deployments' in 'kube-system' for 'create' verb, group 'apps', version 'v1')
-    ```bash
-    ./k8schecker --check-ns-perms \
-                 --perm-namespace=kube-system \
-                 --perm-resource=deployments \
-                 --perm-group=apps \
-                 --perm-version=v1 \
-                 --perm-verbs=create
-    ```
+**Location:** `cmd/helmctl/main.go` (Corrected from htlmctl)
 
-4.  **Check cluster-level permission:**
-    (e.g., to 'create' 'namespaces')
-    ```bash
-    ./k8schecker --check-cluster-perm \
-                 --cluster-perm-resource=namespaces \
-                 --cluster-perm-verb=create
-    ```
+**Purpose:**
+- List Helm releases in specified or all namespaces.
+- Install Helm charts from repositories or local paths.
+- Uninstall Helm releases.
+- Upgrade existing Helm releases.
+- Get detailed information about a release.
+- View the history of a release.
+- Add and update Helm chart repositories.
+- Ensure a chart is locally available.
+- Leverages the `internal/helmutils` package, which in turn uses `internal/k8sutils`.
 
-For more details on all available flags and options:
+**Build:**
+Navigate to the project root directory:
 ```bash
-./k8schecker --help
+go build -o helmctl ./cmd/helmctl
 ```
 
+**Usage & Examples:**
+(Refer to the comment block in `cmd/helmctl/main.go` for detailed examples or run `./helmctl --help` and `./helmctl <command> --help`)
+
 ## Internal Go Modules
+
+These modules are designed to be reusable and provide core functionalities.
 
 ### Kubernetes Utilities (`internal/k8sutils`)
 
@@ -140,36 +131,50 @@ This file contains the `AuthUtil` type and associated methods to handle Kubernet
 -   Initializing a Kubernetes client (either in-cluster or from a kubeconfig file).
 -   Determining if the application is running inside a Kubernetes cluster.
 -   Retrieving the current namespace.
--   Performing `SelfSubjectAccessReview` checks to determine if the current identity has specific permissions on namespaced resources (e.g., "can I 'get' pods in 'default' namespace?").
--   Performing `SelfSubjectAccessReview` checks for cluster-scoped resources (e.g., "can I 'create' namespaces?").
+-   Performing `SelfSubjectAccessReview` checks for namespaced and cluster-scoped resources.
 
-The functions in `auth.go` are well-documented with Go doc comments. Key functionalities include:
--   `NewAuthUtil()`: Creates and initializes the utility.
--   `IsRunningInCluster() bool`: Checks if running in-cluster.
--   `GetCurrentNamespace() (string, error)`: Gets the current namespace.
--   `CheckNamespacePermissions(...) (map[string]bool, error)`: Checks permissions for various verbs on a namespaced resource.
--   `CanPerformClusterAction(...) (bool, error)`: Checks permission for a verb on a cluster-scoped resource.
+This utility is used by both the `k8schecker` and `helmctl` (via `helmutils`) CLI tools.
 
-This utility is used by the `k8schecker` CLI tool and can be leveraged by other Go applications needing to perform these checks.
+### Helm Utilities (`internal/helmutils`)
 
-## Using the Go Application
+This module provides a client for performing Helm operations programmatically.
 
-*(Details on how to build, configure, and run the Go application will be added here as the project develops. This application will demonstrate tasks such as:*
-*   *Listing Kubernetes resources.*
-*   *Deploying Helm charts programmatically.*
-*   *Managing Helm releases.*
-*   *Interacting with custom resources.*)
+#### `client.go`
+**Location:** `internal/helmutils/client.go`
+
+**Purpose:**
+This file contains the `Client` type that implements the `HelmClient` interface, offering methods to manage Helm operations. It uses the Helm SDK and relies on `internal/k8sutils` for Kubernetes configuration and authentication context. Key functionalities include:
+-   `NewClient()`: Creates and initializes the Helm client.
+-   Listing releases (`ListReleases`) with various state filters.
+-   Installing charts (`InstallChart`) with options for version, values, namespace creation, and waiting.
+-   Uninstalling releases (`UninstallRelease`) with options for history retention.
+-   Upgrading releases (`UpgradeRelease`) with options for chart version, values, and installation if missing.
+-   Fetching release details (`GetReleaseDetails`) and history (`GetReleaseHistory`).
+-   Managing Helm repositories (`AddRepository`, `UpdateRepositories`).
+-   Ensuring a chart is locally available (`EnsureChart`).
+
+This utility is used by the `helmctl` CLI tool.
 
 ## Testing with the Umbrella Chart
 
-The `umbrella-chart` located in the `umbrella-chart/` directory is not only for initial manual environment verification but will also be used as a target for automated tests run by this Go application. This allows us to test the Go client's interactions with Helm and Kubernetes in a controlled manner.
+The `umbrella-chart` located in the `umbrella-chart/` directory is not only for initial manual environment verification but can also be used as a target for testing the `helmctl` utility and, by extension, the `helmutils` package.
 
-*(Further details on running tests will be provided here.)*
+For example, after deploying the `umbrella-chart` as `my-umbrella-release` in the `dev` namespace:
+```bash
+# Ensure helmctl is built and in your PATH or use ./helmctl
+helmctl --helm-namespace=dev list --filter my-umbrella-release
+helmctl --helm-namespace=dev details my-umbrella-release
+# (Adjust paths if helmctl is run from a different directory than the project root)
+helmctl --helm-namespace=dev upgrade my-umbrella-release --chart=./umbrella-chart --set="prd.enabled=false"
+helmctl --helm-namespace=dev uninstall my-umbrella-release
+```
 
-## Contributing
+## Future Enhancements / To-Do List
 
-*(Contribution guidelines will be added here.)*
+This project has several planned enhancements to expand its capabilities and provide a more comprehensive solution for Kubernetes and Helm management. These include advanced K8s interactions, sophisticated chart management, database integration, a RESTful API backend, and a web UI.
 
-## License
+For a detailed breakdown of planned features and ongoing tasks, please see the:
 
-*(License information will be added here.)*
+➡️ **[Project To-Do List](./TODO.md)**
+
+We aim to adopt suitable design patterns (e.g., Repository, Strategy, modular design) to ensure the packages remain independent, configurable, and maintainable as the project grows.

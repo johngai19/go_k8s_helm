@@ -13,26 +13,91 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync" // Added for logging
 	"time"
 )
 
 const (
 	logPrefixDefault = "[configloader] "
+	logFileName      = "configloader.log" // Name of the log file
 )
 
-// logMessage prints an informational message to stderr.
+// Package-level variables for logging
+var (
+	logFileHandle *os.File
+	logMutex      sync.Mutex
+	logInitErr    error // Stores error from the first attempt to init logging
+	logInitOnce   sync.Once
+)
+
+// initLogging attempts to set up file-based logging.
+// It's called via logInitOnce.Do to ensure it runs only once per execution.
+// Logs will be placed in basePath/data/log/configloader.log.
+func initLogging(basePath string) {
+	logDirPath := filepath.Join(basePath, "data", "log")
+	err := os.MkdirAll(logDirPath, 0755) // Create data/log directory
+	if err != nil {
+		logInitErr = fmt.Errorf("failed to create log directory %s: %w", logDirPath, err)
+		// Log this initial setup error to stderr since file logging isn't up yet
+		fmt.Fprintln(os.Stderr, logPrefixDefault+"[ERROR] "+logInitErr.Error())
+		return
+	}
+
+	logFilePath := filepath.Join(logDirPath, logFileName)
+	file, err := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		logInitErr = fmt.Errorf("failed to open log file %s: %w", logFilePath, err)
+		fmt.Fprintln(os.Stderr, logPrefixDefault+"[ERROR] "+logInitErr.Error()) // Log setup error to stderr
+		return
+	}
+	logFileHandle = file
+	// Optional: Log a message indicating logging has started to the file itself
+	// fmt.Fprintln(logFileHandle, logPrefixDefault+"File logging started at "+time.Now().UTC().Format(time.RFC3339))
+}
+
+// ensureLoggingInitialized ensures that initLogging is called using the provided basePath.
+// It uses sync.Once to guarantee that the initialization logic runs at most once.
+func ensureLoggingInitialized(basePath string) {
+	if basePath == "" { // Should not happen if called after BasePath is finalized in Load
+		fmt.Fprintln(os.Stderr, logPrefixDefault+"[ERROR] BasePath for logging is empty, defaulting to stderr.")
+		return
+	}
+	logInitOnce.Do(func() {
+		initLogging(basePath)
+	})
+}
+
+// writeToLog handles the actual writing to the configured log file or falls back to stderr.
+func writeToLog(formattedMsg string) {
+	logMutex.Lock() // Protects access to logFileHandle and stderr printing
+	defer logMutex.Unlock()
+
+	if logFileHandle != nil {
+		if _, err := fmt.Fprintln(logFileHandle, formattedMsg); err != nil {
+			// Fallback to stderr if file write fails
+			fmt.Fprintln(os.Stderr, logPrefixDefault+"[ERROR] Failed to write to log file: "+err.Error())
+			fmt.Fprintln(os.Stderr, formattedMsg) // Print original message to stderr
+		}
+	} else {
+		// logFileHandle is nil, meaning initLogging might have failed or was not effectively called.
+		// logInitErr might contain the reason, which would have been printed to stderr by initLogging.
+		fmt.Fprintln(os.Stderr, formattedMsg)
+	}
+}
+
+// logMessage prints an informational message.
 func logMessage(msg string) {
-	fmt.Fprintln(os.Stderr, logPrefixDefault+msg)
+	writeToLog(logPrefixDefault + msg)
 }
 
-// logWarning prints a warning message to stderr.
+// logWarning prints a warning message.
 func logWarning(msg string) {
-	fmt.Fprintln(os.Stderr, logPrefixDefault+"[WARNING] "+msg)
+	writeToLog(logPrefixDefault + "[WARNING] " + msg)
 }
 
-// logError prints an error message to stderr (used internally before returning an error).
+// logError prints an error message (used internally before returning an error).
 func logError(msg string) {
-	fmt.Fprintln(os.Stderr, logPrefixDefault+"[ERROR] "+msg)
+	writeToLog(logPrefixDefault + "[ERROR] " + msg)
 }
 
 // Options defines the parameters for loading configurations.
@@ -166,6 +231,7 @@ func LoadWithDefaults(basePath string, env string, enableDBGrouping bool) (*Load
 		EnableDatabaseGrouping: enableDBGrouping,
 		CustomFilePaths:        nil, // Indicate default discovery
 	}
+	// The call to Load(opts) will handle logging initialization.
 	return Load(opts)
 }
 
@@ -182,14 +248,23 @@ func Load(opts Options) (*LoadedConfig, error) {
 	var filesToParse []string
 	var discoveredPrimaryConf, discoveredGeneralConfDir string // For metadata
 
+	// Finalize opts.BasePath before setting up logging
 	if opts.BasePath == "" {
 		var err error
 		opts.BasePath, err = os.Getwd()
 		if err != nil {
+			// If BasePath cannot be determined, logging will default to stderr.
+			// The error is returned shortly after.
+			// We log this specific failure to get current working directory to stderr directly.
+			logError(fmt.Sprintf("Failed to get current working directory for logging and path resolution: %v", err))
 			return nil, fmt.Errorf("failed to get current working directory: %w", err)
 		}
 	}
 	opts.BasePath = filepath.Clean(opts.BasePath)
+
+	// Setup file-based logging using the finalized BasePath.
+	// This ensures initLogging is called once with the correct path.
+	ensureLoggingInitialized(opts.BasePath)
 
 	if len(opts.CustomFilePaths) > 0 {
 		for _, p := range opts.CustomFilePaths {

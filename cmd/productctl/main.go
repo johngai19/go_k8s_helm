@@ -42,11 +42,15 @@ func main() {
 
 	// get command
 	getCmd = flag.NewFlagSet("get", flag.ExitOnError)
-	getCmd.Usage = func() { printSubcommandUsage(getCmd, "get", "Displays details of a specific chart product.", "get <productName>") }
+	getCmd.Usage = func() {
+		printSubcommandUsage(getCmd, "get", "Displays details of a specific chart product.", "get <productName>")
+	}
 
 	// extract-vars command
 	extractVarsCmd = flag.NewFlagSet("extract-vars", flag.ExitOnError)
-	extractVarsCmd.Usage = func() { printSubcommandUsage(extractVarsCmd, "extract-vars", "Extracts @{variable} placeholders from a given chart path.", "extract-vars <chartPath>") }
+	extractVarsCmd.Usage = func() {
+		printSubcommandUsage(extractVarsCmd, "extract-vars", "Extracts @{variable} placeholders from a given chart path.", "extract-vars <chartPath>")
+	}
 
 	// instantiate command
 	instantiateCmd = flag.NewFlagSet("instantiate", flag.ExitOnError)
@@ -59,7 +63,9 @@ func main() {
 
 	// validate command
 	validateCmd = flag.NewFlagSet("validate", flag.ExitOnError)
-	validateCmd.Usage = func() { printSubcommandUsage(validateCmd, "validate", "Validates the structure of YAML and JSON files within a given chart path.", "validate <chartPath>") }
+	validateCmd.Usage = func() {
+		printSubcommandUsage(validateCmd, "validate", "Validates the structure of YAML and JSON files within a given chart path.", "validate <chartPath>")
+	}
 
 	// define command
 	defineCmd = flag.NewFlagSet("define", flag.ExitOnError)
@@ -177,8 +183,7 @@ func main() {
 			log.Fatal("Error: chartPath argument is required for 'validate' command.")
 		}
 		chartPath := validateCmd.Arg(0)
-		if err := pm.ValidateChartFiles(chartPath);
-		err != nil {
+		if err := pm.ValidateChartFiles(chartPath); err != nil {
 			log.Fatalf("Validation failed for chart at 	%s	: %v", chartPath, err)
 		}
 		fmt.Printf("Chart at 	%s	 validated successfully.\n", chartPath)
@@ -213,8 +218,7 @@ func main() {
 			}
 		}
 
-		if err := pm.DefineProduct(productName, *defineBaseChartPath, &productMeta);
-		err != nil {
+		if err := pm.DefineProduct(productName, *defineBaseChartPath, &productMeta); err != nil {
 			log.Fatalf("Error defining product 	%s	: %v", productName, err)
 		}
 		fmt.Printf("Successfully defined product 	%s	 in %s\n", productName, filepath.Join(*productsDir, productName))
@@ -354,4 +358,3 @@ func printSubcommandUsage(fs *flag.FlagSet, command, description, usageExample s
 	fmt.Fprintln(os.Stderr, "Options:")
 	fs.PrintDefaults()
 }
-

@@ -16,9 +16,10 @@
 
 # Dependency directories (remove the comment below to include it)
 vendor/
-bin/
-data/log/
-data/backups/
+bin/*
+data/log/*
+data/backups/*
+data/charts/*
 
 # Go workspace file
 go.work

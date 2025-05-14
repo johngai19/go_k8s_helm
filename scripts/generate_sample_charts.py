@@ -3,6 +3,7 @@ import yaml
 import json
 import copy # For deep copying configurations
 import argparse # For CLI arguments
+import random
 
 # Get the directory of the current script
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -125,16 +126,16 @@ CHARTS_CONFIG = [
             "frontend-nginx": {
                 "replicaCount": 2,
                 "image_tag": "latest",
-                "config": {"timezone": "VAR:main.TIMEZONE_OVERRIDE"} # Example override
+                "config": {"timezone": "VAR:main.TIMEZONE"} 
             },
             "cache-redis-alpha": {
                 "resources": {"limits": {"memory": "512Mi"}}
             }
         },
         "tags_values": {
-            "global": {"environment_tag": "alpha-tagged", "cloud_provider": "VAR:main.CLOUD_PROVIDER_ALPHA"},
+            "global": {"environment_tag": "alpha-tagged", "cloud_provider": "VAR:main.DEFAULT_WORKSPACE"},
             "frontend-nginx": {
-                "image_tag": "VAR:main.NGINX_ALPHA_TAG_OVERRIDE"
+                "image_tag": "VAR:main.DEFAULT_WORKSPACE"
             }
         }
     },
@@ -205,11 +206,40 @@ CHARTS_CONFIG = [
         "tags_values": {
             "global": {"environment_tag": "gamma-db-tagged", "data_center": "VAR:main.DATA_CENTER_GAMMA"},
             "app-gamma": {
-                "config": {"dbName": "VAR:database_configs.postgres.RDBMS_DATABASE_NAME_TAGGED_OVERRIDE"}
+                "config": {"dbName": "VAR:database_configs.postgres.RDBMS_DATABASE_NAME_TAGGEDE"}
             }
         }
     },
 ]
+
+# --- Fix any missing VAR: placeholders in CHARTS_CONFIG ---
+valid_var_paths = []
+def _flatten_paths(d, prefix=""):
+    for k, v in d.items():
+        p = f"{prefix}.{k}" if prefix else k
+        if isinstance(v, dict):
+            _flatten_paths(v, p)
+        else:
+            valid_var_paths.append(p)
+
+_flatten_paths(ALL_VARIABLES)  # build list of real variable paths
+
+def _fix_placeholders(obj):
+    if isinstance(obj, dict):
+        return {k: _fix_placeholders(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_fix_placeholders(i) for i in obj]
+    if isinstance(obj, str) and obj.startswith("VAR:"):
+        var_path = obj[4:]
+        if get_nested_val(ALL_VARIABLES, var_path) is None:
+            new_var = random.choice(valid_var_paths)
+            print(f"WARNING: placeholder '{var_path}' not found; replacing with '{new_var}'")
+            return f"VAR:{new_var}"
+        return obj
+    return obj
+
+# apply the fixer to every umbrella chart definition
+CHARTS_CONFIG = [_fix_placeholders(uc) for uc in CHARTS_CONFIG]
 
 # --- File Generation Functions ---
 def create_dir(path):

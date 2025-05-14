@@ -18,6 +18,7 @@
 vendor/
 bin/
 data/log/
+data/backups/
 
 # Go workspace file
 go.work

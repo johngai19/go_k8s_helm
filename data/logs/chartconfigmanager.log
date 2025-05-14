@@ -1,0 +1,64 @@
+CHARTCONFIGMAN: 2025/05/14 15:54:14 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 15:54:26 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 15:54:38 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 15:55:03 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 15:55:03 chartconfigmanager.go:209: Listing products from base path: ./chart_products
+CHARTCONFIGMAN: 2025/05/14 15:55:03 chartconfigmanager.go:259: Found 0 products.
+CHARTCONFIGMAN: 2025/05/14 16:05:46 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:05:50 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:07:25 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:07:29 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:07:35 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:07:35 chartconfigmanager.go:209: Listing products from base path: ./data/charts/placeholder_charts/
+CHARTCONFIGMAN: 2025/05/14 16:07:35 chartconfigmanager.go:259: Found 3 products.
+CHARTCONFIGMAN: 2025/05/14 16:09:02 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:09:02 chartconfigmanager.go:209: Listing products from base path: ./data/charts/placeholder_charts/
+CHARTCONFIGMAN: 2025/05/14 16:09:02 chartconfigmanager.go:259: Found 3 products.
+CHARTCONFIGMAN: 2025/05/14 16:11:51 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:11:51 chartconfigmanager.go:265: Getting product details for: appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:18:21 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:18:21 chartconfigmanager.go:415: Instantiating product/chart from 'appstack-alpha' to './output/instance-of-my-app' with action 'error' for unassigned variables
+CHARTCONFIGMAN: 2025/05/14 16:18:21 chartconfigmanager.go:265: Getting product details for: appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:18:21 chartconfigmanager.go:438: Resolved source path for instantiation: /mnt/d/WSL/repos/johngai19/go_k8s_helm/data/charts/placeholder_charts/appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:18:21 chartconfigmanager.go:328: Extracting variables from path: /mnt/d/WSL/repos/johngai19/go_k8s_helm/data/charts/placeholder_charts/appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:18:21 chartconfigmanager.go:399: Found 10 unique variables in /mnt/d/WSL/repos/johngai19/go_k8s_helm/data/charts/placeholder_charts/appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:21:55 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:21:55 chartconfigmanager.go:209: Listing products from base path: ./data/charts/placeholder_charts/
+CHARTCONFIGMAN: 2025/05/14 16:21:55 chartconfigmanager.go:259: Found 3 products.
+CHARTCONFIGMAN: 2025/05/14 16:22:01 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:22:01 chartconfigmanager.go:265: Getting product details for: appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:22:14 chartconfigmanager.go:145: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:24:35 chartconfigmanager.go:157: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:24:35 chartconfigmanager.go:277: Getting product details for: appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:25:52 chartconfigmanager.go:157: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:25:52 chartconfigmanager.go:277: Getting product details for: appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:26:59 chartconfigmanager.go:157: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:26:59 chartconfigmanager.go:427: Instantiating product/chart from 'appstack-alpha' to './output/instance-of-my-app' with action 'error' for unassigned variables
+CHARTCONFIGMAN: 2025/05/14 16:26:59 chartconfigmanager.go:277: Getting product details for: appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:26:59 chartconfigmanager.go:450: Resolved source path for instantiation: /mnt/d/WSL/repos/johngai19/go_k8s_helm/data/charts/placeholder_charts/appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:26:59 chartconfigmanager.go:340: Extracting variables from path: /mnt/d/WSL/repos/johngai19/go_k8s_helm/data/charts/placeholder_charts/appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:26:59 chartconfigmanager.go:411: Found 10 unique variables in /mnt/d/WSL/repos/johngai19/go_k8s_helm/data/charts/placeholder_charts/appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:52:24 chartconfigmanager.go:157: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:52:24 chartconfigmanager.go:427: Instantiating product/chart from 'appstack-alpha' to './output/instance-of-my-app' with action 'error' for unassigned variables
+CHARTCONFIGMAN: 2025/05/14 16:52:24 chartconfigmanager.go:277: Getting product details for: appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:52:24 chartconfigmanager.go:450: Resolved source path for instantiation: /mnt/d/WSL/repos/johngai19/go_k8s_helm/data/charts/placeholder_charts/appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:52:24 chartconfigmanager.go:340: Extracting variables from path: /mnt/d/WSL/repos/johngai19/go_k8s_helm/data/charts/placeholder_charts/appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:52:24 chartconfigmanager.go:411: Found 10 unique variables in /mnt/d/WSL/repos/johngai19/go_k8s_helm/data/charts/placeholder_charts/appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:157: ChartConfigManager initialized. Logging to data/logs/chartconfigmanager.log
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:427: Instantiating product/chart from 'appstack-alpha' to './output/instance-of-my-app' with action 'empty' for unassigned variables
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:277: Getting product details for: appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:450: Resolved source path for instantiation: /mnt/d/WSL/repos/johngai19/go_k8s_helm/data/charts/placeholder_charts/appstack-alpha
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:516: Warning: variable 'variable.path' not found in defaults or overrides; using empty string
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:516: Warning: variable 'variable.path' not found in defaults or overrides; using empty string
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:516: Warning: variable 'REDIS_IMAGE_TAG' not found in defaults or overrides; using empty string
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:516: Warning: variable 'REDIS_HOST' not found in defaults or overrides; using empty string
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:516: Warning: variable 'REDIS_PASSWORD' not found in defaults or overrides; using empty string
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:516: Warning: variable 'variable.path' not found in defaults or overrides; using empty string
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:516: Warning: variable 'REGISTRY' not found in defaults or overrides; using empty string
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:516: Warning: variable 'NGINX_CPU_REQUEST' not found in defaults or overrides; using empty string
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:516: Warning: variable 'TIMEZONE' not found in defaults or overrides; using empty string
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:516: Warning: variable 'CLOUD_PROVIDER_ALPHA' not found in defaults or overrides; using empty string
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:516: Warning: variable 'NGINX_ALPHA_TAG_OVERRIDE' not found in defaults or overrides; using empty string
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:516: Warning: variable 'TIMEZONE_OVERRIDE' not found in defaults or overrides; using empty string
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:516: Warning: variable 'REGISTRY' not found in defaults or overrides; using empty string
+CHARTCONFIGMAN: 2025/05/14 16:58:25 chartconfigmanager.go:547: Validating chart files in: /mnt/d/WSL/repos/johngai19/go_k8s_helm/output/instance-of-my-app

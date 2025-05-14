@@ -1,0 +1,13 @@
+apiVersion: v2
+name: appstack-alpha
+description: Alpha application stack with web frontend and caching.
+type: application
+version: 0.1.0
+appVersion: 1.0.0
+dependencies:
+- name: frontend-nginx
+  version: 0.1.0
+  repository: file://./charts/frontend-nginx
+- name: cache-redis-alpha
+  version: 0.1.0
+  repository: file://./charts/cache-redis-alpha

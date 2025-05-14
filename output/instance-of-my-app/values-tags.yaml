@@ -1,0 +1,5 @@
+global:
+  environment_tag: alpha-tagged
+  cloud_provider: ''
+frontend-nginx:
+  image_tag: ''

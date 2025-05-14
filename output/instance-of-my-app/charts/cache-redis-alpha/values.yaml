@@ -1,0 +1,18 @@
+replicaCount: 1
+image:
+  repository: redis
+  tag: ''
+  pullPolicy: IfNotPresent
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+config:
+  host: ''
+  password: ''
+service:
+  port: 6379
+  type: ClusterIP

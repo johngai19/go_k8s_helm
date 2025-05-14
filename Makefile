@@ -6,6 +6,7 @@ build-all:
 	go build -o ./bin/helmctl    ./cmd/helmctl
 	go build -o ./bin/configloader ./cmd/configloader
 	go build -o ./bin/backupctl ./cmd/backupctl
+	go build -o ./bin/productctl ./cmd/productctl
 	@echo "All CLI tools built in ./bin/"
 
 clean-data:

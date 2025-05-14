@@ -1,0 +1,13 @@
+frontend-nginx:
+  replicaCount: 2
+  image_tag: latest
+  config:
+    timezone: ''
+cache-redis-alpha:
+  resources:
+    limits:
+      memory: 512Mi
+global:
+  environment: development
+  umbrellaName: appstack-alpha
+  default_registry: ''

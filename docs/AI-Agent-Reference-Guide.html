@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 开发参考手册 2026</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Noto Sans CJK SC", "Source Han Sans SC", "PingFang SC",
+                 "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+    font-size: 11pt;
+    line-height: 1.7;
+    color: #1a1a2e;
+    background: #fff;
+  }
+
+  /* ── COVER PAGE ── */
+  .cover {
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #0d1b2a 100%);
+    color: #fff;
+    text-align: center;
+    padding: 60px 40px;
+  }
+  .cover .badge {
+    background: rgba(94, 234, 212, 0.15);
+    border: 1px solid rgba(94,234,212,0.4);
+    color: #5eead4;
+    font-size: 9pt;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 6px 20px;
+    border-radius: 20px;
+    margin-bottom: 40px;
+  }
+  .cover h1 {
+    font-size: 36pt;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+  }
+  .cover h1 span { color: #5eead4; }
+  .cover .subtitle {
+    font-size: 16pt;
+    color: #94a3b8;
+    margin-bottom: 50px;
+  }
+  .cover .meta {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .cover .meta-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .cover .meta-item .num {
+    font-size: 28pt;
+    font-weight: 700;
+    color: #5eead4;
+  }
+  .cover .meta-item .label {
+    font-size: 9pt;
+    color: #94a3b8;
+    letter-spacing: 1px;
+  }
+  .cover .footer {
+    margin-top: 60px;
+    font-size: 9pt;
+    color: #475569;
+    letter-spacing: 1px;
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 50px 60px;
+  }
+  .chapter { page-break-before: always; padding-top: 20px; }
+
+  /* ── TOC ── */
+  .toc { padding: 40px 60px; }
+  .toc h2 {
+    font-size: 20pt;
+    color: #0f3460;
+    border-bottom: 3px solid #5eead4;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+  }
+  .toc-item {
+    display: flex;
+    align-items: baseline;
+    padding: 8px 0;
+    border-bottom: 1px dotted #e2e8f0;
+  }
+  .toc-item .num { color: #5eead4; font-weight: 700; width: 30px; flex-shrink: 0; }
+  .toc-item .title { color: #334155; flex: 1; font-size: 11pt; }
+  .toc-item .tags { display: flex; gap: 6px; }
+  .toc-item .tag {
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 8pt;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  /* ── CHAPTER HEADER ── */
+  .ch-header {
+    background: linear-gradient(135deg, #0f3460 0%, #1e3a5f 100%);
+    color: #fff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+  }
+  .ch-header .ch-num {
+    font-size: 9pt;
+    color: #5eead4;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .ch-header h2 { font-size: 22pt; margin-bottom: 8px; }
+  .ch-header .ch-desc { color: #94a3b8; font-size: 10pt; }
+
+  /* ── TYPOGRAPHY ── */
+  h3 {
+    font-size: 14pt;
+    color: #0f3460;
+    margin: 28px 0 12px;
+    padding-left: 12px;
+    border-left: 4px solid #5eead4;
+  }
+  h4 {
+    font-size: 11pt;
+    color: #1e3a5f;
+    margin: 20px 0 8px;
+    font-weight: 700;
+  }
+  p { margin-bottom: 12px; color: #334155; }
+
+  /* ── CALLOUT BOXES ── */
+  .callout {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    border-left: 4px solid;
+  }
+  .callout.info    { background: #eff6ff; border-color: #3b82f6; }
+  .callout.warning { background: #fffbeb; border-color: #f59e0b; }
+  .callout.tip     { background: #f0fdf4; border-color: #22c55e; }
+  .callout.danger  { background: #fef2f2; border-color: #ef4444; }
+  .callout .title  { font-weight: 700; font-size: 10pt; margin-bottom: 6px; }
+  .callout.info .title    { color: #1d4ed8; }
+  .callout.warning .title { color: #d97706; }
+  .callout.tip .title     { color: #16a34a; }
+  .callout.danger .title  { color: #dc2626; }
+
+  /* ── CODE ── */
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 18px 20px;
+    border-radius: 8px;
+    font-family: "Source Code Pro", "Fira Code", "Cascadia Code", monospace;
+    font-size: 9pt;
+    line-height: 1.6;
+    margin: 16px 0;
+    overflow-x: auto;
+    border: 1px solid #1e293b;
+  }
+  code {
+    background: #f1f5f9;
+    color: #0f3460;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 9.5pt;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+  .kw  { color: #c084fc; }   /* keyword */
+  .st  { color: #86efac; }   /* string */
+  .cm  { color: #475569; }   /* comment */
+  .fn  { color: #67e8f9; }   /* function */
+  .nm  { color: #fbbf24; }   /* number */
+  .op  { color: #f8fafc; }   /* operator */
+
+  /* ── TABLES ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 10pt;
+  }
+  thead tr { background: #0f3460; color: #fff; }
+  thead th { padding: 10px 14px; text-align: left; font-weight: 600; }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  tbody td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; }
+  .badge-green  { color: #16a34a; font-weight: 700; }
+  .badge-yellow { color: #d97706; font-weight: 700; }
+  .badge-red    { color: #dc2626; font-weight: 700; }
+
+  /* ── GRID CARDS ── */
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .card .card-title { font-weight: 700; color: #0f3460; margin-bottom: 8px; font-size: 11pt; }
+  .card .card-body  { font-size: 10pt; color: #475569; }
+
+  /* ── TIMELINE ── */
+  .timeline { margin: 20px 0; }
+  .tl-item { display: flex; gap: 16px; margin-bottom: 16px; align-items: flex-start; }
+  .tl-dot  {
+    width: 12px; height: 12px;
+    background: #5eead4; border-radius: 50%;
+    flex-shrink: 0; margin-top: 5px;
+  }
+  .tl-date { color: #5eead4; font-weight: 700; font-size: 9pt; min-width: 80px; }
+  .tl-text { color: #334155; font-size: 10pt; }
+
+  /* ── DECISION TREE ── */
+  .dtree {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 20px 24px;
+    border-radius: 10px;
+    font-family: monospace;
+    font-size: 9.5pt;
+    line-height: 1.8;
+    margin: 16px 0;
+  }
+  .dtree .q  { color: #67e8f9; }
+  .dtree .a  { color: #86efac; }
+  .dtree .arr{ color: #f59e0b; }
+
+  /* ── BENCHMARK BAR ── */
+  .bench { margin: 16px 0; }
+  .bench-row { margin-bottom: 10px; }
+  .bench-label { font-size: 10pt; color: #334155; margin-bottom: 4px; }
+  .bench-bar-wrap { background: #e2e8f0; border-radius: 6px; height: 16px; position: relative; }
+  .bench-bar {
+    background: linear-gradient(90deg, #0f3460, #5eead4);
+    border-radius: 6px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+  }
+  .bench-val { font-size: 8.5pt; color: #fff; font-weight: 700; }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    margin-top: 50px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 8.5pt;
+    color: #94a3b8;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     COVER
+═══════════════════════════════════════════ -->
+<div class="cover">
+  <div class="badge">Reference Guide · 2026 Edition</div>
+  <h1>AI <span>Agent</span><br>开发参考手册</h1>
+  <div class="subtitle">MCP · 多 Agent · 提示词工程 · 自进化架构 · 最新基准</div>
+
+  <div class="meta">
+    <div class="meta-item">
+      <span class="num">7</span>
+      <span class="label">知识章节</span>
+    </div>
+    <div class="meta-item">
+      <span class="num">10K+</span>
+      <span class="label">MCP Servers</span>
+    </div>
+    <div class="meta-item">
+      <span class="num">80.8%</span>
+      <span class="label">Claude SWE-bench</span>
+    </div>
+    <div class="meta-item">
+      <span class="num">97M</span>
+      <span class="label">月 SDK 下载</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    基于最新网络研究与 Anthropic 官方文档 &nbsp;·&nbsp; 更新：2026-03
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TABLE OF CONTENTS
+═══════════════════════════════════════════ -->
+<div class="toc page-break-after">
+  <h2>目 录</h2>
+
+  <div class="toc-item">
+    <span class="num">01</span>
+    <span class="title">MCP — 模型上下文协议完全指南</span>
+    <span class="tags"><span class="tag">协议</span><span class="tag">工具</span></span>
+  </div>
+  <div class="toc-item">
+    <span class="num">02</span>
+    <span class="title">多 Agent 协作与长上下文管理</span>
+    <span class="tags"><span class="tag">架构</span><span class="tag">实战</span></span>
+  </div>
+  <div class="toc-item">
+    <span class="num">03</span>
+    <span class="title">Knowledge vs Skills 解耦架构</span>
+    <span class="tags"><span class="tag">设计</span><span class="tag">进阶</span></span>
+  </div>
+  <div class="toc-item">
+    <span class="num">04</span>
+    <span class="title">上下文工程与提示词设计</span>
+    <span class="tags"><span class="tag">提示词</span><span class="tag">优化</span></span>
+  </div>
+  <div class="toc-item">
+    <span class="num">05</span>
+    <span class="title">软件工程原则在 Agent 系统中的应用</span>
+    <span class="tags"><span class="tag">SOLID</span><span class="tag">模式</span></span>
+  </div>
+  <div class="toc-item">
+    <span class="num">06</span>
+    <span class="title">自进化 Agent 前沿框架</span>
+    <span class="tags"><span class="tag">前沿</span><span class="tag">研究</span></span>
+  </div>
+  <div class="toc-item">
+    <span class="num">07</span>
+    <span class="title">2025–2026 基准、框架与选型决策</span>
+    <span class="tags"><span class="tag">对比</span><span class="tag">选型</span></span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 1 — MCP
+═══════════════════════════════════════════ -->
+<div class="chapter page">
+  <div class="ch-header">
+    <div class="ch-num">Chapter 01</div>
+    <h2>MCP — 模型上下文协议</h2>
+    <div class="ch-desc">AI 世界的 "USB-C"：连接模型与工具的开放标准</div>
+  </div>
+
+  <div class="callout info">
+    <div class="title">现状数据（2026-03）</div>
+    MCP 于 2024 年 11 月由 Anthropic 发布，2025 年 12 月捐赠给 Linux 基金会。目前有 <strong>10,000+</strong> 活跃 Server、<strong>9700 万</strong>月度 SDK 下载、<strong>1,200+</strong> 经质量认证的实现。OpenAI 和 Google DeepMind 均已采用。
+  </div>
+
+  <h3>三种传输方式</h3>
+  <table>
+    <thead>
+      <tr><th>方式</th><th>命令参数</th><th>适用场景</th><th>推荐度</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>HTTP</td><td><code>--transport http</code></td><td>远程服务、生产环境</td><td class="badge-green">★★★ 首选</td></tr>
+      <tr><td>SSE</td><td><code>--transport sse</code></td><td>流式数据、实时推送</td><td class="badge-yellow">★★☆ 次选</td></tr>
+      <tr><td>Stdio</td><td><code>--transport stdio</code></td><td>本地进程、直接系统访问</td><td class="badge-yellow">★★☆ 本地</td></tr>
+    </tbody>
+  </table>
+
+<pre><code><span class="cm"># HTTP — 生产环境推荐</span>
+claude mcp add --transport http notion https://mcp.notion.com/mcp
+claude mcp add --transport http secure-api https://api.example.com/mcp \
+  --header <span class="st">"Authorization: Bearer your-token"</span>
+
+<span class="cm"># SSE — 流式数据</span>
+claude mcp add --transport sse asana https://mcp.asana.com/sse
+
+<span class="cm"># Stdio — 本地进程</span>
+claude mcp add --transport stdio \
+  --env AIRTABLE_API_KEY=YOUR_KEY airtable \
+  -- npx -y airtable-mcp-server</code></pre>
+
+  <h3>配置文件三级作用域</h3>
+  <table>
+    <thead><tr><th>文件</th><th>作用域</th><th>是否提交 git</th></tr></thead>
+    <tbody>
+      <tr><td><code>.mcp.json</code></td><td>项目级，团队共享</td><td class="badge-green">✅ 应提交</td></tr>
+      <tr><td><code>.claude/settings.local.json</code></td><td>项目级，本地私有</td><td class="badge-red">❌ 不提交</td></tr>
+      <tr><td><code>~/.claude/settings.local.json</code></td><td>全局，跨项目</td><td>— 个人配置</td></tr>
+    </tbody>
+  </table>
+
+  <h3>按类别最佳 Server（2026）</h3>
+  <table>
+    <thead><tr><th>类别</th><th>Server</th><th>核心能力</th></tr></thead>
+    <tbody>
+      <tr><td>开发</td><td>GitHub MCP</td><td>仓库、PR、Issue、提交管理</td></tr>
+      <tr><td>开发</td><td>GitLab MCP</td><td>企业 CI/CD、OAuth 2.0</td></tr>
+      <tr><td>数据库</td><td>PostgreSQL MCP</td><td>自然语言查询、Schema 管理</td></tr>
+      <tr><td>数据库</td><td>Chroma MCP</td><td>向量搜索、嵌入、全文搜索</td></tr>
+      <tr><td>浏览器</td><td>Playwright MCP</td><td>浏览器自动化、截图、爬取</td></tr>
+      <tr><td>桌面</td><td>Desktop Commander</td><td>终端命令、应用启动、系统控制</td></tr>
+      <tr><td>搜索</td><td>Brave Search MCP</td><td>隐私优先搜索、研究引用</td></tr>
+      <tr><td>超级集成</td><td><strong>Rube MCP</strong></td><td><strong>500+ 应用</strong>（Gmail/Slack/GitHub/Notion）</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <div class="title">最小必装三件套</div>
+    <strong>GitHub + Brave Search + Playwright</strong> 覆盖 90% 的开发日常需求。
+  </div>
+
+  <div class="page-footer">
+    <span>AI Agent 开发参考手册 2026</span>
+    <span>Chapter 01 · MCP</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 2 — Multi-Agent
+═══════════════════════════════════════════ -->
+<div class="chapter page">
+  <div class="ch-header">
+    <div class="ch-num">Chapter 02</div>
+    <h2>多 Agent 协作架构</h2>
+    <div class="ch-desc">四种协作模式 · 上下文压缩 · 长任务状态管理</div>
+  </div>
+
+  <h3>四种协作模式</h3>
+  <div class="cards">
+    <div class="card">
+      <div class="card-title">🔗 顺序链（Sequential）</div>
+      <div class="card-body">A → B → C，前者输出作为后者输入。<br>适合：数据处理流水线、文档生成</div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚡ 并行执行（Parallel）</div>
+      <div class="card-body">多 Agent 同时处理不同子任务。<br>适合：大规模数据分析、独立模块开发</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎯 主管路由（Supervisor）</div>
+      <div class="card-body">Orchestrator 决定调用哪个子 Agent。<br>适合：客服路由、多领域专家系统</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🤝 层级（Hierarchical）</div>
+      <div class="card-body">多层嵌套的 Orchestrator。<br>适合：复杂企业流程、研究系统</div>
+    </div>
+  </div>
+
+  <h3>上下文腐烂（Context Rot）警告</h3>
+  <div class="callout danger">
+    <div class="title">关键研究发现（Chroma Research, 2025，18 个模型测试）</div>
+    大多数模型<strong>实际只有效使用上下文的 10-20%</strong>。声称 200K tokens 的模型，通常在 130K 时已变得不可靠。<strong>更多内容 ≠ 更好结果</strong>。
+  </div>
+
+  <h4>注意力分布规律（Lost in the Middle）</h4>
+<pre><code>上下文位置       注意力强度
+─────────────────────────────────
+开头 (0-10%)    ████████████  最高
+中间 (10-90%)   ██            最低 ← 放"可查阅资料"
+结尾 (90-100%)  ██████████    次高 ← 放"最新问题"</code></pre>
+
+  <h3>长任务最佳实践</h3>
+  <table>
+    <thead><tr><th>#</th><th>策略</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>精选而非填满</td><td>高质量少量 tokens &gt; 低质量大量 tokens</td></tr>
+      <tr><td>2</td><td>关键信息置首尾</td><td>规则放开头，最新问题放结尾</td></tr>
+      <tr><td>3</td><td>定期压缩检查点</td><td>每 N 轮自动摘要，保留决策记录</td></tr>
+      <tr><td>4</td><td>外部存储持久化</td><td>重要发现写文件/数据库，跨轮次复用</td></tr>
+      <tr><td>5</td><td>Token 缓存</td><td>相同前缀 90% 折扣（Claude + OpenAI 均支持）</td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-footer">
+    <span>AI Agent 开发参考手册 2026</span>
+    <span>Chapter 02 · 多 Agent 协作</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 3 — Knowledge vs Skills
+═══════════════════════════════════════════ -->
+<div class="chapter page">
+  <div class="ch-header">
+    <div class="ch-num">Chapter 03</div>
+    <h2>Knowledge vs Skills 解耦</h2>
+    <div class="ch-desc">两级渐进式加载 · 上下文效率 · 可维护架构</div>
+  </div>
+
+  <div class="callout warning">
+    <div class="title">最常见反模式</div>
+    把所有能力（角色 + 规则 + 工具说明 + 领域知识）塞进一个超长 System Prompt → 10,000+ tokens 每次消耗，注意力稀释，脆弱难维护。
+  </div>
+
+  <h3>正确架构：两层分离</h3>
+
+  <table>
+    <thead><tr><th>层级</th><th>文件</th><th>内容</th><th>加载时机</th></tr></thead>
+    <tbody>
+      <tr><td><strong>身份层</strong></td><td>AGENTS.md / System Prompt</td><td>角色、行为规则、约束策略</td><td>始终加载</td></tr>
+      <tr><td><strong>能力层</strong></td><td>SKILL.md 文件集</td><td>领域专项能力、工具调用方式</td><td>按需动态加载</td></tr>
+    </tbody>
+  </table>
+
+  <h3>渐进式披露（Progressive Disclosure）</h3>
+
+<pre><code>Level 1 — 扫描阶段（极低成本）
+  Claude 只看 Skill 的【名称】和【一行描述】
+  → 判断是否与当前请求相关
+  → 成本：每个 Skill 仅几个 tokens
+
+Level 2 — 加载阶段（只加载匹配的）
+  加载完整 SKILL.md 详细指令
+  → 包含步骤、示例、工具配置
+  → 不匹配的 Skill 永远不消耗上下文</code></pre>
+
+  <h3>核心收益</h3>
+  <div class="cards">
+    <div class="card">
+      <div class="card-title">💰 上下文效率</div>
+      <div class="card-body">只有相关技能被加载，保留宝贵的上下文窗口给真正有用的信息</div>
+    </div>
+    <div class="card">
+      <div class="card-title">♻️ 可复用性</div>
+      <div class="card-body">同一个 Skill 可被多个 Agent 共享（如代码审查 Skill 被调试/PR/生成三个 Agent 共用）</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔧 可维护性</div>
+      <div class="card-body">修改某个 Skill 不影响 Agent 身份，变更隔离，风险极低</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 可扩展性</div>
+      <div class="card-body">添加新 Skill 无需重建 Agent，系统容量线性增长</div>
+    </div>
+  </div>
+
+  <h3>多 Agent 系统级应用</h3>
+<pre><code>规划 Agent    ← 加载 [规划Skill] [领域知识Skill]
+执行 Agent    ← 加载 [工具调用Skill] [代码执行Skill]
+验证 Agent    ← 加载 [质量标准Skill] [测试Skill]
+
+各 Agent 身份独立，Skill 按需共享</code></pre>
+
+  <div class="callout warning">
+    <div class="title">⚠️ 供应商锁定警告</div>
+    Claude Agent Skills 标准（2025-12 发布）是 Anthropic 专有标准。为 Claude 构建的 Skills 无法直接迁移到 GPT 或 Gemini。生产系统请考虑抽象层。
+  </div>
+
+  <div class="page-footer">
+    <span>AI Agent 开发参考手册 2026</span>
+    <span>Chapter 03 · Knowledge vs Skills</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 4 — Prompt / Context Engineering
+═══════════════════════════════════════════ -->
+<div class="chapter page">
+  <div class="ch-header">
+    <div class="ch-num">Chapter 04</div>
+    <h2>上下文工程与提示词设计</h2>
+    <div class="ch-desc">范式转变 · ReAct 框架 · 模型类型匹配策略</div>
+  </div>
+
+  <h3>范式转变：提示词工程 → 上下文工程</h3>
+
+  <table>
+    <thead><tr><th>维度</th><th>提示词工程（旧）</th><th>上下文工程（新）</th></tr></thead>
+    <tbody>
+      <tr><td>关注点</td><td>如何措辞</td><td>在上下文中放什么信息</td></tr>
+      <tr><td>目标</td><td>让模型输出正确格式</td><td>用最少 tokens 最大化期望输出概率</td></tr>
+      <tr><td>层级</td><td>单次交互优化</td><td>整个 Agent 系统的信息架构</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout info">
+    <div class="title">Andrej Karpathy 的定义（2025）</div>
+    "上下文工程是一门微妙的艺术与科学——用恰好合适的信息填充上下文窗口，以最大化下一步的期望输出概率。"
+  </div>
+
+  <h3>针对不同模型类型的策略</h3>
+<pre><code>推理型模型（Claude Extended Thinking, o1）：
+  → 给高层目标，信任模型自行分解细节
+  → 类比：告诉资深工程师"要解决什么"
+  例：「实现一个高并发消息队列，考虑各种边缘情况」
+
+指令遵循型模型（Claude Haiku, GPT-4o）：
+  → 给明确的分步指令
+  → 类比：给初级工程师写详细任务清单
+  例：「1.创建文件 2.添加类 3.实现方法 4.写测试」</code></pre>
+
+  <h3>ReAct 框架（思考-行动-观察循环）</h3>
+<pre><code>Thought:  [分析当前状态，确定下一步]
+Action:   [工具名称]
+Action Input: {"参数": "值"}
+
+收到结果后：
+Observation: [工具返回的内容]
+Thought:  [基于结果的新分析]
+...（循环至任务完成）
+
+Final Answer: [最终答案]</code></pre>
+
+  <h3>自我批评循环（Self-Critique）</h3>
+<pre><code>1. 生成初始输出
+2. 批评："这个输出有什么问题？"
+3. 基于批评修改
+4. 重复直到质量达标</code></pre>
+
+  <div class="callout tip">
+    <div class="title">效果数据</div>
+    系统性使用自我批评循环，某些工作流效率提升 <strong>60-70%</strong>。
+  </div>
+
+  <h3>实用上下文优化策略</h3>
+  <table>
+    <thead><tr><th>场景</th><th>低效做法</th><th>高效做法</th></tr></thead>
+    <tbody>
+      <tr><td>代码库分析</td><td>一次性加载所有文件</td><td>动态加载相关文件（RAG）</td></tr>
+      <tr><td>长对话</td><td>保留全部历史</td><td>定期压缩，保留关键决策节点</td></tr>
+      <tr><td>工具文档</td><td>全部工具说明放 Prompt</td><td>技能路由，只加载相关工具</td></tr>
+      <tr><td>多轮调用</td><td>每次重发完整上下文</td><td>利用缓存，相同前缀 90% 折扣</td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-footer">
+    <span>AI Agent 开发参考手册 2026</span>
+    <span>Chapter 04 · 上下文工程</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 5 — Software Engineering Principles
+═══════════════════════════════════════════ -->
+<div class="chapter page">
+  <div class="ch-header">
+    <div class="ch-num">Chapter 05</div>
+    <h2>软件工程原则在 Agent 系统中的应用</h2>
+    <div class="ch-desc">SOLID · OOP 映射 · 知识管理分层架构</div>
+  </div>
+
+  <h3>SOLID 原则映射</h3>
+  <table>
+    <thead><tr><th>原则</th><th>Agent 应用</th></tr></thead>
+    <tbody>
+      <tr><td><strong>S 单一职责</strong></td><td>一个 Agent 一个领域，不做"全能 Agent"</td></tr>
+      <tr><td><strong>O 开闭原则</strong></td><td>通过新增 Skill 扩展能力，不修改 Agent 核心身份</td></tr>
+      <tr><td><strong>L 里氏替换</strong></td><td>专化 Agent 可替换通用 Agent 而不破坏系统</td></tr>
+      <tr><td><strong>I 接口隔离</strong></td><td>工具接口精确匹配 Agent 需求，不暴露无关接口</td></tr>
+      <tr><td><strong>D 依赖倒置</strong></td><td>Agent 依赖工具抽象（MCP），不依赖具体实现</td></tr>
+    </tbody>
+  </table>
+
+  <h3>OOP 概念映射</h3>
+  <table>
+    <thead><tr><th>OOP 概念</th><th>Agent 架构应用</th></tr></thead>
+    <tbody>
+      <tr><td>封装</td><td>自包含的 Agent 模块，有界的数据与方法</td></tr>
+      <tr><td>多态</td><td>运行时动态切换行为（策略模式）</td></tr>
+      <tr><td>继承</td><td>基础 Agent 类扩展为专化 Agent</td></tr>
+      <tr><td>抽象</td><td>高层行为隐藏实现细节</td></tr>
+    </tbody>
+  </table>
+
+  <h3>六层知识管理架构</h3>
+<pre><code>┌─────────────────────────────────────────────────┐
+│  Layer 6 - Working Memory（工作记忆）             │
+│  → Context Window（精心策划，非填满）              │
+├─────────────────────────────────────────────────┤
+│  Layer 5 - Retrieval（检索层）                   │
+│  → Agentic RAG（Agent 主动决定是否检索）           │
+├─────────────────────────────────────────────────┤
+│  Layer 4 - Procedural Memory（程序记忆）          │
+│  → SKILL.md / Skills Library                   │
+├─────────────────────────────────────────────────┤
+│  Layer 3 - Episodic Memory（情节记忆）            │
+│  → Mem0 / 自定义 Session Store                  │
+├─────────────────────────────────────────────────┤
+│  Layer 2 - Graph Memory（图记忆）                │
+│  → Knowledge Graph（Neo4j / AWS Neptune）       │
+├─────────────────────────────────────────────────┤
+│  Layer 1 - Semantic Memory（语义记忆）            │
+│  → PostgreSQL + pgvector（2025 年新标准）         │
+└─────────────────────────────────────────────────┘</code></pre>
+
+  <div class="callout info">
+    <div class="title">为何 PostgreSQL + pgvector 成为 2025 年标准？</div>
+    三笔大额收购证明市场方向：<strong>Snowflake 收购 Crunchy Data（2.5亿$）</strong>、<strong>Databricks 收购 Neon（10亿$）</strong>、<strong>Supabase E 轮（1亿$）</strong>。pgvector 扩展让 PostgreSQL 直接支持向量搜索，无需额外引入专用向量数据库。
+  </div>
+
+  <div class="callout warning">
+    <div class="title">重要警告</div>
+    当前 LLM 对抽象软件工程原则的理解有限。<strong>不要依赖模型自动应用 SOLID 原则</strong>——架构师必须在系统设计阶段手动强制执行，把 Agent 当作精心设计的软件系统中的组件来对待。
+  </div>
+
+  <div class="page-footer">
+    <span>AI Agent 开发参考手册 2026</span>
+    <span>Chapter 05 · 软件工程原则</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 6 — Self-Evolving Agents
+═══════════════════════════════════════════ -->
+<div class="chapter page">
+  <div class="ch-header">
+    <div class="ch-num">Chapter 06</div>
+    <h2>自进化 Agent 前沿框架</h2>
+    <div class="ch-desc">Darwin Gödel Machine · RoboPhD · GEPA · 安全考量</div>
+  </div>
+
+  <h3>进化设计三个维度</h3>
+  <table>
+    <thead><tr><th>维度</th><th>选项</th></tr></thead>
+    <tbody>
+      <tr><td>进化什么</td><td>模型参数、提示词、记忆、工具集、工作流图、Agent 群体角色</td></tr>
+      <tr><td>何时进化</td><td>任务内（测试时反思、在线RL）或跨任务（跨episode微调、进化搜索）</td></tr>
+      <tr><td>如何进化</td><td>梯度RL、模仿学习、种群进化算法、元学习</td></tr>
+    </tbody>
+  </table>
+
+  <h3>四大核心框架</h3>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-title">🧬 Darwin Gödel Machine</div>
+      <div class="card-body">维护代码库版本树。<strong>只有实证超越先祖性能才被接受</strong>。开放式进化 + 可量化安全性。目前最接近"真正自我改进"。</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎓 RoboPhD（2026-01）</div>
+      <div class="card-body">实例化 → 跨污染 → ELO 锦标赛 → 错误驱动 Artifact。产生了在任何先前基准中都不存在的<strong>涌现能力</strong>。</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔄 GEPA（OpenAI Cookbook）</div>
+      <div class="card-body">采样轨迹 → 自然语言反思 → 提议提示词修订 → 帕累托评估。<strong>可直接实现</strong>的提示词自动优化循环。</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏭 EvoAgentX（EMNLP 2025）</div>
+      <div class="card-body">自动化 Agentic 工作流进化框架。在 EMNLP'25 展示，有开源实现（GitHub）。</div>
+    </div>
+  </div>
+
+  <h3>GEPA 核心循环（可直接使用）</h3>
+<pre><code><span class="kw">def</span> <span class="fn">gepa_loop</span>(agent, task_samples, iterations=<span class="nm">10</span>):
+    current_prompt = agent.system_prompt
+
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(iterations):
+        <span class="cm"># 1. 采样执行轨迹</span>
+        trajectories = [agent.<span class="fn">run</span>(t) <span class="kw">for</span> t <span class="kw">in</span> task_samples[:<span class="nm">5</span>]]
+
+        <span class="cm"># 2. 反思（自然语言分析失败原因）</span>
+        reflection = <span class="fn">reflect_on_trajectories</span>(trajectories)
+
+        <span class="cm"># 3. 提议修订</span>
+        revised = <span class="fn">propose_revision</span>(current_prompt, reflection)
+
+        <span class="cm"># 4. 帕累托评估（多目标，不能退步）</span>
+        <span class="kw">if</span> <span class="fn">is_pareto_better</span>(<span class="fn">eval</span>(revised), <span class="fn">eval</span>(current_prompt)):
+            current_prompt = revised
+
+    <span class="kw">return</span> current_prompt</code></pre>
+
+  <h3>安全考量（必须遵守）</h3>
+  <div class="callout danger">
+    <div class="title">自进化系统强制安全要求</div>
+    <ul>
+      <li>必须有<strong>版本回退机制</strong>（进化失败时能回退到已知良好状态）</li>
+      <li>代码/模型更新前必须<strong>实证证明性能提升</strong>，不允许假设</li>
+      <li>所有进化实验必须在<strong>沙箱环境</strong>中执行</li>
+      <li>设置<strong>性能下限阈值</strong>，低于阈值自动拒绝变更</li>
+    </ul>
+  </div>
+
+  <div class="page-footer">
+    <span>AI Agent 开发参考手册 2026</span>
+    <span>Chapter 06 · 自进化框架</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CHAPTER 7 — Benchmarks & Framework Selection
+═══════════════════════════════════════════ -->
+<div class="chapter page">
+  <div class="ch-header">
+    <div class="ch-num">Chapter 07</div>
+    <h2>2025–2026 基准与框架选型</h2>
+    <div class="ch-desc">编码能力对比 · 框架决策树 · 关键事件时间线</div>
+  </div>
+
+  <h3>编码能力基准（SWE-bench，2026-03）</h3>
+  <div class="bench">
+    <div class="bench-row">
+      <div class="bench-label"><strong>Claude Opus 4.6</strong> — 200K context</div>
+      <div class="bench-bar-wrap"><div class="bench-bar" style="width:80.8%"><span class="bench-val">80.8%</span></div></div>
+    </div>
+    <div class="bench-row">
+      <div class="bench-label"><strong>Claude Sonnet 4.6</strong> — 1M context, 1/5 成本</div>
+      <div class="bench-bar-wrap"><div class="bench-bar" style="width:79.6%"><span class="bench-val">79.6%</span></div></div>
+    </div>
+    <div class="bench-row">
+      <div class="bench-label"><strong>GPT-5</strong> — agentic coding</div>
+      <div class="bench-bar-wrap"><div class="bench-bar" style="width:74.5%"><span class="bench-val">74.5%</span></div></div>
+    </div>
+    <div class="bench-row">
+      <div class="bench-label"><strong>Claude Opus 4.1</strong></div>
+      <div class="bench-bar-wrap"><div class="bench-bar" style="width:74.5%"><span class="bench-val">74.5%</span></div></div>
+    </div>
+  </div>
+
+  <h3>框架对比（2026 年生产级）</h3>
+  <table>
+    <thead><tr><th>框架</th><th>架构</th><th>最适合</th><th>主要缺点</th></tr></thead>
+    <tbody>
+      <tr><td><strong>LangGraph</strong></td><td>状态 DAG</td><td>生产、合规、精细控制</td><td>学习曲线较高</td></tr>
+      <tr><td><strong>CrewAI</strong></td><td>角色团队</td><td>快速原型、角色化工作流</td><td>token 消耗 2x，速度 3x 慢</td></tr>
+      <tr><td><strong>AutoGen/MS</strong></td><td>对话式</td><td>代码生成、迭代修改</td><td>控制粒度较低</td></tr>
+      <tr><td><strong>OpenAI Agents SDK</strong></td><td>Swarm 继任</td><td>OpenAI 原生、低延迟</td><td>生态锁定</td></tr>
+      <tr><td><strong>LlamaIndex</strong></td><td>RAG 中心</td><td>文档/知识库问答</td><td>通用 Agent 能力弱</td></tr>
+      <tr><td><strong>Agno (Phidata)</strong></td><td>Skill 模块化</td><td>技能组合、模块化系统</td><td>社区规模较小</td></tr>
+    </tbody>
+  </table>
+
+  <h3>框架选型决策树</h3>
+  <div class="dtree">
+<span class="q">你的核心需求是什么？</span>
+│
+├─ <span class="q">需要精确控制每一步 + 生产级可靠性？</span>
+│   <span class="arr">→</span> <span class="a">LangGraph</span>（最稳定，企业首选）
+│
+├─ <span class="q">任务能映射到"角色团队"且要快速交付？</span>
+│   <span class="arr">→</span> <span class="a">CrewAI</span>（最快上手，注意 token 成本）
+│
+├─ <span class="q">代码生成 + 执行 + 迭代修改是核心？</span>
+│   <span class="arr">→</span> <span class="a">AutoGen / Microsoft Agent Framework</span>
+│
+├─ <span class="q">主要是文档 / 知识库问答（RAG 密集）？</span>
+│   <span class="arr">→</span> <span class="a">LlamaIndex</span>
+│
+├─ <span class="q">深度 Claude 集成 + Skills 架构？</span>
+│   <span class="arr">→</span> <span class="a">Claude Agent SDK</span>（2025-12 发布）
+│
+└─ <span class="q">完全不想写代码？</span>
+    <span class="arr">→</span> <span class="a">Dify</span>（可视化低代码平台）
+  </div>
+
+  <h3>关键事件时间线</h3>
+  <div class="timeline">
+    <div class="tl-item"><div class="tl-dot"></div><div><div class="tl-date">2024-11</div><div class="tl-text">Anthropic 发布 MCP（"AI 的 USB-C"）</div></div></div>
+    <div class="tl-item"><div class="tl-dot"></div><div><div class="tl-date">2025-03</div><div class="tl-text">OpenAI Agents SDK 发布（Swarm 继任者）；Manus AI 发布，GAIA 三级全 SOTA</div></div></div>
+    <div class="tl-item"><div class="tl-dot"></div><div><div class="tl-date">2025-05</div><div class="tl-text">Claude Opus 4 发布，SWE-bench 72.5%</div></div></div>
+    <div class="tl-item"><div class="tl-dot"></div><div><div class="tl-date">2025-10</div><div class="tl-text">Microsoft Agent Framework 发布（AutoGen + Semantic Kernel 合并）</div></div></div>
+    <div class="tl-item"><div class="tl-dot"></div><div><div class="tl-date">2025-11</div><div class="tl-text">Claude 高级工具使用（工具搜索 / 程序化调用 / 工具使用示例）</div></div></div>
+    <div class="tl-item"><div class="tl-dot"></div><div><div class="tl-date">2025-12</div><div class="tl-text">Claude Agent Skills 发布；MCP 捐赠 Linux 基金会；Meta 以 20-30亿$ 收购 Manus AI</div></div></div>
+    <div class="tl-item"><div class="tl-dot"></div><div><div class="tl-date">2026-02</div><div class="tl-text">16 个 Claude Opus 4.6 Agent 协作，用 Rust 写出能编译 Linux 内核的 C 编译器（费用 ~$20,000）</div></div></div>
+    <div class="tl-item"><div class="tl-dot"></div><div><div class="tl-date">2026-03</div><div class="tl-text">本文档发布；Claude Sonnet 4.6: 79.6%，Opus 4.6: 80.8% SWE-bench</div></div></div>
+  </div>
+
+  <div class="page-footer">
+    <span>AI Agent 开发参考手册 2026</span>
+    <span>Chapter 07 · 基准与选型</span>
+  </div>
+</div>
+
+</body>
+</html>
